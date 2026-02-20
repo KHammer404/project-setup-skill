@@ -1,6 +1,6 @@
 ---
 name: setup-project
-description: Initialize a new project with standard workflow files. Creates TODO.md for task tracking, NOTES.md for ideas and prompts, scripts/ folder with status scripts, and configures MEMORY.md for automatic context loading. Use when starting a new project or setting up project management structure.
+description: Initialize a workflow-driven project structure. Creates TODO.md, NOTES.md, WORKFLOW.md with auto-triggers ("정리해줘", "진행해줘", "next step!"), design/implementation templates, status scripts, and MEMORY.md for automatic context loading.
 disable-model-invocation: true
 allowed-tools: Read, Write, Bash
 ---
@@ -484,7 +484,7 @@ npm test
 
 ## 🔗 관련 문서
 
-- 설계 문서: \`docs/design/EXAMPLE_DESIGN.md\`
+- 설계 문서: \`.project/docs/design/EXAMPLE_DESIGN.md\`
 - TODO 항목: \`.project/TODO.md\`
 
 ## 💡 배운 점 / 이슈
@@ -568,7 +568,7 @@ Alternative: User can also run \`bash .project/scripts/status.sh\` for quick ove
 
 If `.claude/memory/MEMORY.md` already exists, check if the Session Start Protocol is present. If not, prepend it to the file.
 
-## Step 5.5: Create WORKFLOW.md
+## Step 6: Create WORKFLOW.md
 
 Create `.project/WORKFLOW.md` with the workflow guide:
 
@@ -598,9 +598,9 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 **트리거:** 사용자가 **"정리해줘"** 또는 **".project에 정리"** 라고 말함
 
 **AI가 자동으로 수행:**
-1. ✅ \`NOTES.md\`에 토론 요약 추가
-2. ✅ \`TODO.md\`에 구현 태스크 분할 추가
-3. ✅ \`docs/design/\`에 설계 문서 생성 (필요시)
+1. ✅ \`.project/NOTES.md\`에 토론 요약 추가
+2. ✅ \`.project/TODO.md\`에 구현 태스크 분할 추가
+3. ✅ \`.project/docs/design/\`에 설계 문서 생성 (필요시)
 
 **출력 예시:**
 \`\`\`
@@ -624,7 +624,7 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 **사용자가 할 일:**
 - \`.project/TODO.md\` 읽기
 - \`.project/NOTES.md\` 토론 요약 확인
-- \`docs/design/\` 설계 문서 확인 (있다면)
+- \`.project/docs/design/\` 설계 문서 확인 (있다면)
 
 **질문:**
 "내가 이해한 것과 같은가?"
@@ -637,11 +637,11 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 **트리거:** 사용자가 **"진행해줘"** 또는 **"start"** 라고 말함
 
 **AI가 자동으로 수행:**
-1. ✅ \`TODO.md\`에서 첫 번째 Planned 태스크를 In Progress로 이동
+1. ✅ \`.project/TODO.md\`에서 첫 번째 Planned 태스크를 In Progress로 이동
 2. ✅ 코드 구현
 3. ✅ 구현 완료 후:
-   - TODO.md에서 태스크 체크 및 Completed로 이동
-   - \`docs/implementations/\` 에 구현 문서 작성
+   - \`.project/TODO.md\`에서 태스크 체크 및 Completed로 이동
+   - \`.project/docs/implementations/\` 에 구현 문서 작성
 
 **출력 예시:**
 \`\`\`
@@ -691,10 +691,10 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 - [x] JWT 토큰 발급 로직
 
 📚 생성된 문서:
-- docs/design/AUTH_DESIGN.md
-- docs/implementations/GOOGLE_AUTH_IMPLEMENTATION.md
-- docs/implementations/KAKAO_AUTH_IMPLEMENTATION.md
-- docs/implementations/JWT_IMPLEMENTATION.md
+- .project/docs/design/AUTH_DESIGN.md
+- .project/docs/implementations/GOOGLE_AUTH_IMPLEMENTATION.md
+- .project/docs/implementations/KAKAO_AUTH_IMPLEMENTATION.md
+- .project/docs/implementations/JWT_IMPLEMENTATION.md
 
 🚀 다음에 작업할 내용이 있다면 말씀해주세요!
 \`\`\`
@@ -711,10 +711,10 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 
 | 파일 | 역할 |
 |------|------|
-| \`TODO.md\` | 태스크 트래킹 (In Progress, Planned, Completed) |
-| \`NOTES.md\` | 토론 요약, 기술 결정 사항 |
-| \`docs/design/\` | 설계 문서 (API, DB 스키마 등) |
-| \`docs/implementations/\` | 구현 완료 문서 |
+| \`.project/TODO.md\` | 태스크 트래킹 (In Progress, Planned, Completed) |
+| \`.project/NOTES.md\` | 토론 요약, 기술 결정 사항 |
+| \`.project/docs/design/\` | 설계 문서 (API, DB 스키마 등) |
+| \`.project/docs/implementations/\` | 구현 완료 문서 |
 
 ## 💡 팁
 
@@ -724,7 +724,7 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 4. **유연성:** 중간에 방향 바꾸고 싶으면 언제든 새로운 토론 시작
 ```
 
-## Step 6: Create CLAUDE.md (if it doesn't exist)
+## Step 7: Create CLAUDE.md (if it doesn't exist)
 
 If `CLAUDE.md` does not already exist, create it with this basic template:
 
@@ -742,6 +742,18 @@ This file provides guidance to Claude Code when working with this repository.
 
 These files contain the current project state, plans, and saved prompts that guide development.
 
+## 🔄 Workflow
+
+This project uses a trigger-based development workflow:
+
+| 명령어 | 효과 |
+|--------|------|
+| **"정리해줘"** | 토론 내용을 .project/ 파일들에 정리 |
+| **"진행해줘"** | 첫 번째 태스크 구현 시작 |
+| **"next step!"** | 다음 태스크 구현 |
+
+See \`.project/WORKFLOW.md\` for full details.
+
 ## Build & Run Commands
 
 TODO: Add your build and run commands here.
@@ -757,7 +769,7 @@ TODO: List important files and their roles.
 
 If `CLAUDE.md` already exists, do not overwrite it — just report that it already exists.
 
-## Step 7: Report results
+## Step 8: Report results
 
 After completing all steps, print a summary:
 
