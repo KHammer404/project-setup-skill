@@ -7,8 +7,18 @@
 이 스킬은 다음과 같은 개발 워크플로우를 자동화합니다:
 
 ```
-토론 → "정리해줘" → 확인 → "진행해줘" → 구현 → "next step!" → 반복
+토론 → /organize → 확인 → /proceed → 구현 → /verify → /next → 반복
 ```
+
+### 포함된 스킬
+
+| 명령어 | 설명 |
+|--------|------|
+| `/setup-project` | 프로젝트 초기 구조 생성 (.project/, CLAUDE.md, MEMORY.md) |
+| `/organize` | 토론 내용을 NOTES.md, TODO.md, 설계 문서로 정리 |
+| `/proceed` | 첫 번째 Planned 태스크 구현 시작 |
+| `/verify` | 빌드/린트/타입체크 + 태스크 매칭 검증 |
+| `/next` | 다음 태스크로 이동 + 구현 |
 
 ### 자동 생성되는 파일
 
@@ -28,7 +38,7 @@
     └── roadmap/              # 로드맵
 
 .claude/memory/
-└── MEMORY.md                 # 워크플로우 트리거 (자동 로드)
+└── MEMORY.md                 # 세션 시작 프로토콜 (자동 로드)
 
 CLAUDE.md                     # 프로젝트 가이드
 ```
@@ -41,7 +51,16 @@ cd ~/.claude/skills
 git clone https://github.com/KHammer404/project-setup-skill.git setup-project
 ```
 
-2. Claude Code 재시작
+2. 워크플로우 스킬 심링크 생성:
+```bash
+cd ~/.claude/skills
+ln -s setup-project/organize organize
+ln -s setup-project/proceed proceed
+ln -s setup-project/verify verify
+ln -s setup-project/next next
+```
+
+3. Claude Code 재시작
 
 ## 🚀 사용법
 
@@ -64,7 +83,7 @@ AI: "어떤 플랫폼을 지원할까요?"
 
 **Step 2: 정리**
 ```
-사용자: "정리해줘"
+/organize
 ```
 → AI가 자동으로:
 - `.project/NOTES.md` 에 토론 요약 추가
@@ -73,44 +92,27 @@ AI: "어떤 플랫폼을 지원할까요?"
 
 **Step 3: 구현**
 ```
-사용자: "진행해줘"
+/proceed
 ```
 → AI가 자동으로:
 - 첫 번째 태스크 구현
 - `TODO.md` 업데이트
 - `.project/docs/implementations/` 에 구현 문서 작성
 
-**Step 4: 반복**
+**Step 4: 검증**
 ```
-사용자: "next step!"
+/verify
+```
+→ AI가 자동으로:
+- 빌드/린트/타입체크 실행
+- 태스크 vs 구현 매칭 확인
+- 검증 리포트 생성
+
+**Step 5: 반복**
+```
+/next
 ```
 → AI가 다음 태스크 구현
-
-## 🎯 핵심 명령어
-
-| 명령어 | 효과 |
-|--------|------|
-| `정리해줘` | 토론 내용을 NOTES.md, TODO.md, docs/ 에 정리 |
-| `진행해줘` | 첫 번째 태스크 구현 시작 |
-| `next step!` | 다음 태스크 구현 |
-
-## 📚 워크플로우 트리거
-
-스킬 설치 후, AI는 다음 명령어를 자동으로 인식합니다:
-
-### "정리해줘" / "organize this"
-- 토론 요약을 NOTES.md에 추가
-- 태스크를 TODO.md에 분할
-- 설계 문서 생성 (필요시)
-
-### "진행해줘" / "proceed" / "start"
-- TODO.md에서 첫 태스크를 In Progress로 이동
-- 코드 구현
-- 구현 문서 작성
-
-### "next step!" / "다음" / "next"
-- 다음 태스크로 이동
-- 구현 반복
 
 ## 💡 예시
 
@@ -125,7 +127,7 @@ AI: "어떤 플랫폼을 지원할까요?"
 ...
 
 # 3. 정리
-"정리해줘"
+/organize
 
 # AI가 자동으로 생성:
 # - .project/NOTES.md (토론 요약)
@@ -133,21 +135,22 @@ AI: "어떤 플랫폼을 지원할까요?"
 # - .project/docs/design/DASHBOARD_DESIGN.md
 
 # 4. 확인 후 구현
-"진행해줘"
+/proceed
 
 # AI가 첫 태스크 구현 완료
 # - src/components/Dashboard.tsx 생성
 # - .project/docs/implementations/DASHBOARD_IMPLEMENTATION.md 생성
 
-# 5. 다음 태스크
-"next step!"
+# 5. 검증
+/verify
+
+# 빌드/린트 통과 확인, 태스크 매칭 리포트 출력
+
+# 6. 다음 태스크
+/next
 ```
 
 ## 🔧 커스터마이징
-
-### MEMORY.md 수정
-
-`.claude/memory/MEMORY.md`에서 워크플로우 트리거를 수정할 수 있습니다.
 
 ### 템플릿 수정
 
@@ -167,4 +170,4 @@ MIT License
 
 ---
 
-Made with ❤️ by KHammer404 & Claude Sonnet 4.5
+Made with ❤️ by KHammer404 & Claude

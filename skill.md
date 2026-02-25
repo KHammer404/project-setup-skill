@@ -1,6 +1,6 @@
 ---
 name: setup-project
-description: Initialize a workflow-driven project structure. Creates TODO.md, NOTES.md, WORKFLOW.md with auto-triggers ("정리해줘", "진행해줘", "next step!"), design/implementation templates, status scripts, and MEMORY.md for automatic context loading.
+description: Initialize a workflow-driven project structure. Creates TODO.md, NOTES.md, WORKFLOW.md with slash commands (/organize, /proceed, /next, /verify), design/implementation templates, status scripts, and MEMORY.md for automatic context loading.
 disable-model-invocation: true
 allowed-tools: Read, Write, Bash
 ---
@@ -18,7 +18,7 @@ Create `.project/TODO.md` with this content:
 ```markdown
 # TODO & Tasks
 
-> 💡 **워크플로우**: 토론 → "정리해줘" → 확인 → "진행해줘" → 구현 → "next step!"
+> 💡 **워크플로우**: 토론 → /organize → 확인 → /proceed → 구현 → /verify → /next
 
 ## 🔥 In Progress
 
@@ -56,7 +56,7 @@ Create `.project/NOTES.md` with this content:
 
 ## 💬 토론 요약 (Discussion Summaries)
 
-**토론 내용을 여기에 정리합니다. "정리해줘"라고 요청하면 AI가 자동으로 작성합니다.**
+**토론 내용을 여기에 정리합니다. /organize 명령어를 실행하면 AI가 자동으로 작성합니다.**
 
 ### [날짜] 기능명 토론
 **결정사항:**
@@ -526,29 +526,37 @@ When a user:
 
 Alternative: User can also run \`bash .project/scripts/status.sh\` for quick overview.
 
-## 🔄 Workflow Triggers
+## 🔄 Workflow Commands
 
-**사용자가 이렇게 말하면 자동으로 실행:**
+**슬래시 명령어로 워크플로우를 실행합니다:**
 
-### "정리해줘" / "organize this" / ".project에 정리"
+### /organize
+토론 내용을 구조화된 문서로 정리
 1. 토론 내용을 요약하여 \`.project/NOTES.md\` 의 "토론 요약" 섹션에 추가
 2. 구현할 기능을 태스크로 분할하여 \`.project/TODO.md\` 에 추가
 3. 필요시 \`.project/docs/design/\` 에 설계 문서 작성
-4. 사용자에게 "확인하시고 '진행해줘'라고 말씀해주세요!" 안내
 
-### "진행해줘" / "proceed" / "start"
+### /proceed
+첫 번째 Planned 태스크 구현 시작
 1. \`.project/TODO.md\` 에서 "📅 Planned" 의 첫 번째 태스크를 "🔥 In Progress" 로 이동
 2. 해당 태스크 구현 시작
 3. 구현 완료 후:
    - TODO.md에서 태스크를 체크 ✅
    - "✅ Completed"로 이동
    - \`.project/docs/implementations/\` 에 구현 문서 작성
-4. 사용자에게 "확인하시고 'next step!'이라고 말씀해주세요!" 안내
 
-### "next step!" / "다음" / "next"
+### /verify
+현재 구현 검증
+1. In Progress 태스크 확인
+2. git 변경 사항 확인
+3. 빌드/린트/타입체크 실행
+4. 태스크 vs 구현 매칭 리포트 생성
+
+### /next
+다음 태스크로 이동 + 구현
 1. \`.project/TODO.md\` 에서 다음 태스크 확인
 2. 다음 태스크를 "🔥 In Progress"로 이동
-3. 구현 시작 (위 "진행해줘" 프로세스 반복)
+3. 구현 시작 (/proceed 프로세스 반복)
 
 ## 📁 File Organization Rules
 
@@ -595,7 +603,7 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 
 ### 2️⃣ 정리 단계 (Organization)
 
-**트리거:** 사용자가 **"정리해줘"** 또는 **".project에 정리"** 라고 말함
+**명령어:** `/organize`
 
 **AI가 자동으로 수행:**
 1. ✅ \`.project/NOTES.md\`에 토론 요약 추가
@@ -616,7 +624,7 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 2. Kakao OAuth 연동
 3. JWT 토큰 발급 로직
 
-👉 확인하시고 "진행해줘"라고 말씀해주세요!
+👉 확인하시고 /proceed 로 구현을 시작하세요.
 \`\`\`
 
 ### 3️⃣ 확인 단계 (Review)
@@ -629,12 +637,12 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 **질문:**
 "내가 이해한 것과 같은가?"
 
-- ✅ 같다면: **"진행해줘!"**
+- ✅ 같다면: **`/proceed`**
 - ❌ 다르다면: 추가 토론 또는 수정 요청
 
 ### 4️⃣ 구현 단계 (Implementation)
 
-**트리거:** 사용자가 **"진행해줘"** 또는 **"start"** 라고 말함
+**명령어:** `/proceed`
 
 **AI가 자동으로 수행:**
 1. ✅ \`.project/TODO.md\`에서 첫 번째 Planned 태스크를 In Progress로 이동
@@ -657,25 +665,26 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 📋 TODO 업데이트:
 - [x] Google OAuth 연동 ✅
 
-👉 확인하시고 "next step!"이라고 말씀해주세요!
+👉 확인 후 /verify 로 검증하거나, /next 로 다음 태스크를 진행하세요.
 \`\`\`
 
 ### 5️⃣ 검증 단계 (Verification)
 
-**사용자가 할 일:**
-- 구현된 코드 확인
-- 구현 문서 읽기
-- 테스트 실행 (필요시)
+**명령어:** `/verify`
 
-**질문:**
-"구현이 올바른가?"
+**AI가 자동으로 수행:**
+- In Progress 태스크와 실제 구현 매칭 확인
+- 빌드/린트/타입체크 실행
+- 검증 리포트 생성
+- 결과를 NOTES.md에 기록
 
-- ✅ 맞다면: **"next step!"**
-- ❌ 틀렸다면: 수정 요청
+**결과 확인 후:**
+- ✅ 통과: **`/next`**
+- ❌ 이슈 있음: 수정 요청
 
 ### 6️⃣ 반복 (Iteration)
 
-**트리거:** 사용자가 **"next step!"** 또는 **"다음"** 이라고 말함
+**명령어:** `/next`
 
 **AI가 자동으로 수행:**
 1. ✅ \`TODO.md\`에서 다음 Planned 태스크를 In Progress로 이동
@@ -703,9 +712,10 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 
 | 명령어 | 단계 | 효과 |
 |--------|------|------|
-| **"정리해줘"** | 토론 → 정리 | NOTES.md, TODO.md, docs/ 업데이트 |
-| **"진행해줘"** | 정리 → 구현 | 첫 태스크 구현 시작 |
-| **"next step!"** | 구현 → 다음 | 다음 태스크 구현 |
+| **/organize** | 토론 → 정리 | NOTES.md, TODO.md, docs/ 업데이트 |
+| **/proceed** | 정리 → 구현 | 첫 태스크 구현 시작 |
+| **/verify** | 구현 → 검증 | 빌드/린트/타입체크 + 태스크 매칭 확인 |
+| **/next** | 검증 → 다음 | 다음 태스크 구현 |
 
 ## 📁 파일 역할
 
@@ -718,8 +728,8 @@ AI: "토큰 저장은 localStorage vs Cookie?"
 
 ## 💡 팁
 
-1. **한 번에 하나씩:** 한 태스크 완료 후 "next step!" 으로 다음으로
-2. **확인은 필수:** 각 단계마다 사용자 확인 후 진행
+1. **한 번에 하나씩:** 한 태스크 완료 후 /next 로 다음으로
+2. **검증 습관:** 구현 후 /verify 로 확인하고 넘어가기
 3. **문서화:** 모든 결정과 구현은 자동으로 문서화됨
 4. **유연성:** 중간에 방향 바꾸고 싶으면 언제든 새로운 토론 시작
 ```
@@ -744,13 +754,14 @@ These files contain the current project state, plans, and saved prompts that gui
 
 ## 🔄 Workflow
 
-This project uses a trigger-based development workflow:
+This project uses slash command-based development workflow:
 
 | 명령어 | 효과 |
 |--------|------|
-| **"정리해줘"** | 토론 내용을 .project/ 파일들에 정리 |
-| **"진행해줘"** | 첫 번째 태스크 구현 시작 |
-| **"next step!"** | 다음 태스크 구현 |
+| **/organize** | 토론 내용을 .project/ 파일들에 정리 |
+| **/proceed** | 첫 번째 태스크 구현 시작 |
+| **/verify** | 빌드/린트/타입체크 + 구현 검증 |
+| **/next** | 다음 태스크 구현 |
 
 See \`.project/WORKFLOW.md\` for full details.
 
@@ -797,15 +808,19 @@ After completing all steps, print a summary:
    "소셜 로그인 만들고 싶어"
 
 2. **정리:** 토론이 완벽하면
-   👉 **"정리해줘"**
+   👉 **/organize**
    → AI가 NOTES.md, TODO.md, docs/ 자동 업데이트
 
-3. **확인:** 생성된 문서들 확인 후
-   👉 **"진행해줘"**
+3. **구현:** 생성된 문서들 확인 후
+   👉 **/proceed**
    → AI가 첫 번째 태스크 구현 시작
 
-4. **반복:** 구현 확인 후
-   👉 **"next step!"**
+4. **검증:** 구현 확인
+   👉 **/verify**
+   → 빌드/린트/타입체크 + 태스크 매칭 검증
+
+5. **반복:** 검증 통과 후
+   👉 **/next**
    → AI가 다음 태스크 구현
 
 📚 상세 가이드:
@@ -813,6 +828,6 @@ After completing all steps, print a summary:
 
 💡 다음 단계:
 1. AI와 첫 기능에 대해 토론 시작
-2. 토론 완료 후 "정리해줘" 입력
+2. 토론 완료 후 /organize 실행
 3. 워크플로우 시작!
 ```
